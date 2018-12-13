@@ -364,12 +364,12 @@ loadGSTemplate = function() {
             "出勤中", "出勤なし", "休暇中", "休暇なし", "出勤確認", "退勤確認"
           ],
           [
-            "<@#1> おはようございます (#2)", "<@#1> 出勤時間を#2へ変更しました",
-            "<@#1> お疲れ様でした (#2)", "<@#1> 退勤時間を#2へ変更しました",
-            "<@#1> #2を休暇として登録しました", "<@#1> #2の休暇を取り消しました",
-            "#1が出勤しています", "全員退勤しています",
-            "#1は#2が休暇です", "#1に休暇の人はいません",
-            "今日は休暇ですか？ #1", "退勤しましたか？ #1"
+            "<@#1> Good morning! (#2)", "<@#1> Punch in time has changed to #1",
+            "<@#1> See you! (#2)", "<@#1> Punch out time has changed to #1",
+            "<@#1> Apply #2 day off", "<@#1> Canceled applied day off on #2",
+            "#1 is working", "All members had left work",
+            "#1 is supposed to be day off on #2", "No one will be day off on #1",
+            "Are you day off today ? #1", "Are you already left ? #1"
           ]
         ]);
       }
@@ -427,10 +427,10 @@ loadGSTimesheets = function () {
 
     this.scheme = {
       columns: [
-        { name: '日付' },
-        { name: '出勤' },
-        { name: '退勤' },
-        { name: 'ノート' },
+        { name: 'Date' },
+        { name: 'Start working' },
+        { name: 'Leave office' },
+        { name: 'Note' },
       ],
       properties: [
         { name: 'DayOff', value: '土,日', comment: '← 月,火,水みたいに入力してください。アカウント停止のためには「全部」と入れてください。'},
@@ -609,7 +609,8 @@ function setUp() {
     settings.setNote('無視するユーザ', '反応をしないユーザを,区切りで設定する。botは必ず指定してください。');
 
     // 休日を設定 (iCal)
-    var calendarId = 'ja.japanese#holiday@group.v.calendar.google.com';
+    //var calendarId = 'ja.japanese#holiday@group.v.calendar.google.com';
+    var calendarId = 'en.singapore#holiday@group.v.calendar.google.com';
     var calendar = CalendarApp.getCalendarById(calendarId);
     var startDate = DateUtils.now();
     var endDate = new Date(startDate.getFullYear() + 1, startDate.getMonth());
@@ -740,12 +741,12 @@ loadTimesheets = function (exports) {
 
     // コマンド集
     var commands = [
-      ['actionSignOut', /(バ[ー〜ァ]*イ|ば[ー〜ぁ]*い|おやすみ|お[つっ]ー|おつ|さらば|お先|お疲|帰|乙|bye|night|(c|see)\s*(u|you)|退勤|ごきげんよ|グ[ッ]?バイ)/],
+      ['actionSignOut', /(バ[ー〜ァ]*イ|ば[ー〜ぁ]*い|おやすみ|お[つっ]ー|おつ|さらば|お先|お疲|帰|乙|bye|night|(c|see)\s*(u|you)|退勤|ごきげんよ|グ[ッ]?バイ|bye|see you*)/],
       ['actionWhoIsOff', /(だれ|誰|who\s*is).*(休|やす(ま|み|む))/],
       ['actionWhoIsIn', /(だれ|誰|who\s*is)/],
       ['actionCancelOff', /(休|やす(ま|み|む)|休暇).*(キャンセル|消|止|やめ|ません)/],
-      ['actionOff', /(休|やす(ま|み|む)|休暇)/],
-      ['actionSignIn', /(モ[ー〜]+ニン|も[ー〜]+にん|おっは|おは|へろ|はろ|ヘロ|ハロ|hi|hello|morning|出勤)/],
+      ['actionOff', /(休|やす(ま|み|む)|休暇|day off)/],
+      ['actionSignIn', /(モ[ー〜]+ニン|も[ー〜]+にん|おっは|おは|へろ|はろ|ヘロ|ハロ|hi|hello|morning|出勤|hi|morning)/],
       ['confirmSignIn', /__confirmSignIn__/],
       ['confirmSignOut', /__confirmSignOut__/],
     ];
