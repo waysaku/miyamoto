@@ -525,6 +525,19 @@ loadGSTimesheets = function () {
     return DateUtils.parseWday(sheet.getRange("B2").getValue());
   };
 
+  // 有給の日付をリストで返す
+  GSTimesheets.prototype.getAppliedDayOffs = function(username) {
+    var sheet = this._getSheet(username);
+    var appliedDayOffs = sheet.getRange("A5:E").getValues()
+            .filter(function(r) {
+              return r[3] !== '';
+            })
+            .map(function(r) {
+              return r[0];
+            });
+    return appliedDayOffs;
+  };
+  
   return GSTimesheets;
 };
 
@@ -881,7 +894,11 @@ loadTimesheets = function (exports) {
       var off = (row.signIn === '-') || _.contains(self.storage.getDayOff(row.user), wday);
       return (signedIn || off) ? row.user : undefined;
     }));
-    var users = _.difference(this.storage.getUsers(), signedInUsers);
+    
+    var users = _.difference(this.storage.getUsers(), signedInUsers).filter(function(user) {
+      // To identify the same date in Array, serialize to Number using map() and + operator (https://stackoverflow.com/questions/27450867/how-to-correctly-use-javascript-indexof-in-a-date-array/27450967)
+      return self.storage.getAppliedDayOffs(user).map(Number).indexOf(+today) < 0;
+    });
 
     if(!_.isEmpty(users)) {
       this.responder.template("出勤確認", users.sort());
@@ -893,10 +910,15 @@ loadTimesheets = function (exports) {
 
   // 退勤していない人にメッセージを送る
   Timesheets.prototype.confirmSignOut = function(username, message) {
+    var self = this;
     var dateObj = DateUtils.toDate(DateUtils.now());
     var users = _.compact(_.map(this.storage.getByDate(dateObj), function(row) {
       return _.isDate(row.signIn) && !_.isDate(row.signOut) ? row.user : undefined;
-    }));
+    }))
+    .filter(function(user) {
+      // To identify the same date in Array, serialize to Number using map() and + operator (https://stackoverflow.com/questions/27450867/how-to-correctly-use-javascript-indexof-in-a-date-array/27450967)
+      return self.storage.getAppliedDayOffs(user).map(Number).indexOf(+dateObj) < 0;
+    });
 
     if(!_.isEmpty(users)) {
       this.responder.template("退勤確認", users.sort());
