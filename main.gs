@@ -88,9 +88,9 @@ loadDateUtils = function () {
     var reg = /((\d{4})[-\/年]{1}|)(\d{1,2})[-\/月]{1}(\d{1,2})/;
     var matches = str.match(reg);
     if(matches) {
-      var year = parseInt(matches[2], 10);
-      var month = parseInt(matches[3], 10);
-      var day = parseInt(matches[4], 10);
+      var year = parseInt(matches[2]);
+      var month = parseInt(matches[3].replace(/^0/, ''));
+      var day = parseInt(matches[4].replace(/^0/, ''));
       if(_.isNaN(year) || year < 1970) {
         //
         if((now().getMonth() + 1) >= 11 && month <= 2) {
