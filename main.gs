@@ -596,6 +596,12 @@ function confirmSignOut() {
   miyamoto.timesheets.confirmSignOut();
 }
 
+// Time-based triggerで実行
+function actionWhoIsOff() {
+  var miyamoto = init();
+  miyamoto.timesheets.actionWhoIsOff();
+}
+
 
 // 初期化する
 function setUp() {
@@ -648,6 +654,13 @@ function setUp() {
       .timeBased()
       .everyDays(1)
       .atHour(22)
+      .create();
+    
+    // 毎日10時頃に休暇中の人を知らせる
+    ScriptApp.newTrigger('actionWhoIsOff')
+      .timeBased()
+      .everyDays(1)
+      .atHour(9)
       .create();
   }
 };
@@ -866,6 +879,14 @@ loadTimesheets = function (exports) {
         result.push(username);
       }
     });
+
+    // 有給の処理 
+    _.each(this.storage.getUsers(), function(username) {
+      if(_.contains(self.storage.getAppliedDayOffs(username).map(Number), +dateObj)) {
+        result.push(username);
+      }
+    });
+    
     result = _.uniq(result);
 
     if(_.isEmpty(result)) {
